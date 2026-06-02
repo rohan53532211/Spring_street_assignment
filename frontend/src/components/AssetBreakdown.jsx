@@ -9,7 +9,8 @@ const AssetBreakdown = ({ tickersSummary, selectedTicker, onSelectTicker }) => {
     AAPL: '#a3a3a3', // Slate
     MSFT: '#3b82f6', // Blue
     GOOGL: '#eab308', // Gold
-    AMZN: '#f97316'  // Orange
+    AMZN: '#f97316', // Orange
+    NVDA: '#10b981'  // Emerald Green
   };
 
   // Outer pie: Ending allocations
@@ -19,10 +20,10 @@ const AssetBreakdown = ({ tickersSummary, selectedTicker, onSelectTicker }) => {
     color: COLORS[t.ticker]
   }));
 
-  // Inner pie: Starting allocations (always 25%)
+  // Inner pie: Starting allocations (divided equally)
   const startingData = tickersSummary.map(t => ({
     name: t.ticker,
-    value: 25,
+    value: 100 / tickersSummary.length,
     color: COLORS[t.ticker]
   }));
 

@@ -12,6 +12,14 @@ import {
   Legend
 } from 'recharts';
 
+const COLORS = {
+  AAPL: '#a3a3a3', // Slate
+  MSFT: '#3b82f6', // Blue
+  GOOGL: '#eab308', // Gold
+  AMZN: '#f97316', // Orange
+  NVDA: '#10b981'  // Emerald Green
+};
+
 const PerformanceChart = ({ data }) => {
   const [chartType, setChartType] = useState('portfolio'); // 'portfolio' or 'comparison'
   const [timeframe, setTimeframe] = useState('5Y'); // '1Y', '3Y', '5Y'
@@ -32,6 +40,15 @@ const PerformanceChart = ({ data }) => {
     
     return data.slice(totalPoints - slicePoints);
   }, [data, timeframe]);
+
+  // Extract comparison tickers dynamically from data
+  const comparisonKeys = useMemo(() => {
+    if (!filteredData || filteredData.length === 0) return [];
+    const firstItem = filteredData[0];
+    return Object.keys(firstItem)
+      .filter(k => k.endsWith('_return') && k !== 'portfolio_return')
+      .map(k => k.replace('_return', ''));
+  }, [filteredData]);
 
   // Format dates for X axis (e.g., "Jun 2021")
   const formatDate = (tickItem) => {
@@ -201,42 +218,18 @@ const PerformanceChart = ({ data }) => {
                 iconSize={8}
                 wrapperStyle={{ fontSize: '12px', color: 'var(--text-secondary)' }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="AAPL_return" 
-                name="AAPL" 
-                stroke="#a3a3a3" 
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="MSFT_return" 
-                name="MSFT" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="GOOGL_return" 
-                name="GOOGL" 
-                stroke="#eab308" 
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="AMZN_return" 
-                name="AMZN" 
-                stroke="#f97316" 
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
+              {comparisonKeys.map(ticker => (
+                <Line 
+                  key={ticker}
+                  type="monotone" 
+                  dataKey={`${ticker}_return`} 
+                  name={ticker} 
+                  stroke={COLORS[ticker] || 'var(--primary)'} 
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         )}

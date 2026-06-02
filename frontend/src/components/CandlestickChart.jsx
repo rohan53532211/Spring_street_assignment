@@ -20,9 +20,26 @@ const CandlestickChart = ({ selectedTicker, historicalData }) => {
     AAPL: '#a3a3a3',
     MSFT: '#3b82f6',
     GOOGL: '#eab308',
-    AMZN: '#f97316'
+    AMZN: '#f97316',
+    NVDA: '#10b981'
   };
   const tickerColor = COLORS[selectedTicker.ticker] || 'var(--primary)';
+
+  const RGBA_COLORS = {
+    AAPL: 'rgba(163, 163, 163, 0.15)',
+    MSFT: 'rgba(59, 130, 246, 0.15)',
+    GOOGL: 'rgba(234, 179, 8, 0.15)',
+    AMZN: 'rgba(249, 115, 22, 0.15)',
+    NVDA: 'rgba(16, 185, 129, 0.15)'
+  };
+
+  const BORDER_COLORS = {
+    AAPL: 'rgba(163, 163, 163, 0.3)',
+    MSFT: 'rgba(59, 130, 246, 0.3)',
+    GOOGL: 'rgba(234, 179, 8, 0.3)',
+    AMZN: 'rgba(249, 115, 22, 0.3)',
+    NVDA: 'rgba(16, 185, 129, 0.3)'
+  };
 
   // Prepare chart data for this specific ticker
   const chartData = useMemo(() => {
@@ -81,14 +98,14 @@ const CandlestickChart = ({ selectedTicker, historicalData }) => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{
-              background: `rgba(${tickerColor === '#a3a3a3' ? '163,163,163' : tickerColor === '#3b82f6' ? '59,130,246' : tickerColor === '#eab308' ? '234,179,8' : '249,115,22'}, 0.15)`,
+              background: RGBA_COLORS[selectedTicker.ticker] || 'rgba(139, 92, 246, 0.15)',
               color: tickerColor,
               padding: '4px 8px',
               borderRadius: '6px',
               fontWeight: '700',
               fontFamily: 'var(--font-mono)',
               fontSize: '14px',
-              border: `1px solid rgba(${tickerColor === '#a3a3a3' ? '163,163,163' : tickerColor === '#3b82f6' ? '59,130,246' : tickerColor === '#eab308' ? '234,179,8' : '249,115,22'}, 0.3)`
+              border: `1px solid ${BORDER_COLORS[selectedTicker.ticker] || 'rgba(139, 92, 246, 0.3)'}`
             }}>
               {selectedTicker.ticker}
             </span>

@@ -26,12 +26,13 @@ app.add_middleware(
 )
 
 # Portfolio configuration
-TICKERS = ["AAPL", "MSFT", "GOOGL", "AMZN"]
+TICKERS = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"]
 TICKER_NAMES = {
     "AAPL": "Apple Inc.",
     "MSFT": "Microsoft Corporation.",
     "GOOGL": "Alphabet Inc.",
-    "AMZN": "Amazon.com Inc."
+    "AMZN": "Amazon.com Inc.",
+    "NVDA": "NVIDIA Corporation"
 }
 INITIAL_PORTFOLIO_VALUE = 10000.0
 RISK_FREE_RATE = 0.02  # 2% Risk-free rate for Sharpe Ratio
@@ -87,11 +88,12 @@ def fetch_and_process_data():
         normalized_prices = prices_df / prices_df.iloc[0]
         
         # Equal-weighted portfolio logic
-        # Starting weight is 0.25 (25%) for each of the 4 tickers
-        weights = np.array([0.25, 0.25, 0.25, 0.25])
+        num_assets = len(TICKERS)
+        single_weight = 1.0 / num_assets
+        weights = np.array([single_weight] * num_assets)
         
-        # Growth of individual investments ($2,500 each)
-        asset_values = normalized_prices * (INITIAL_PORTFOLIO_VALUE * 0.25)
+        # Growth of individual investments
+        asset_values = normalized_prices * (INITIAL_PORTFOLIO_VALUE * single_weight)
         
         # Total portfolio value over time
         portfolio_values = asset_values.sum(axis=1)
@@ -167,8 +169,10 @@ def calculate_analytics(data):
         t_vol = float(t_daily.std() * np.sqrt(252)) * 100
         t_sharpe = float((t_cagr / 100 - RISK_FREE_RATE) / (t_vol / 100))
         
-        # Contribution (starting investment was $2,500)
-        t_start_val = INITIAL_PORTFOLIO_VALUE * 0.25
+        # Contribution
+        num_assets = len(TICKERS)
+        single_weight = 1.0 / num_assets
+        t_start_val = INITIAL_PORTFOLIO_VALUE * single_weight
         t_end_val = float(asset_values[ticker].iloc[-1])
         t_gain = t_end_val - t_start_val
         t_contrib_pct = (t_gain / total_portfolio_gain) * 100 if total_portfolio_gain > 0 else 0
@@ -183,7 +187,7 @@ def calculate_analytics(data):
             "annualized_return": t_cagr,
             "volatility": t_vol,
             "sharpe_ratio": t_sharpe,
-            "weight_start": 25.0,
+            "weight_start": single_weight * 100,
             "weight_end": t_weight_end,
             "contribution_value": t_gain,
             "contribution_pct": t_contrib_pct
@@ -222,7 +226,7 @@ def calculate_analytics(data):
         f"📉 **Laggard**: **{worst_asset['name']} ({worst_asset['ticker']})** had the slowest growth in the portfolio, finishing with a total return of **{worst_asset['total_return']:.1f}%**.",
         f"🛡️ **Diversification Benefit**: The portfolio's overall volatility (**{volatility:.1f}%**) was lower than its highest volatility component (**{max(t['volatility'] for t in tickers_summary):.1f}%**), demonstrating the risk-mitigation benefits of holding a diversified equal-weighted basket.",
         f"📈 **Risk-Adjusted Return**: Your equal-weighted portfolio achieved a **Sharpe Ratio of {sharpe_ratio:.2f}**, which represents a **{'strong' if sharpe_ratio >= 1.0 else 'moderate' if sharpe_ratio >= 0.5 else 'suboptimal'}** risk-adjusted return relative to the risk-free benchmark.",
-        f"📊 **Asset Rebalancing Alert**: Due to varying growth rates, your portfolio has drifted from its original 25% equal weighting. **{best_asset['ticker']}** is now the largest holding at **{best_asset['weight_end']:.1f}%**, while **{worst_asset['ticker']}** is the smallest at **{worst_asset['weight_end']:.1f}%**. Rebalancing back to 25% weights would lock in profits and reduce concentration risk.",
+        f"📊 **Asset Rebalancing Alert**: Due to varying growth rates, your portfolio has drifted from its original {100/len(TICKERS):.0f}% equal weighting. **{best_asset['ticker']}** is now the largest holding at **{best_asset['weight_end']:.1f}%**, while **{worst_asset['ticker']}** is the smallest at **{worst_asset['weight_end']:.1f}%**. Rebalancing back to {100/len(TICKERS):.0f}% weights would lock in profits and reduce concentration risk.",
         f"📉 **Maximum Drawdown**: The portfolio experienced a maximum peak-to-trough drawdown of **{max_drawdown:.1f}%** over the 5-year period, representing the historical tail risk during market corrections."
     ]
 
